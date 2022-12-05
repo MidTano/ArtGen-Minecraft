@@ -82,6 +82,8 @@ def save_output(mode,image,output, x, y, z):
         return True
 
     with open(image + ".txt", 'w') as f:
+        if mode == 2:
+            f.write("mc.setBlocks({},{},{},{},{},{},20)\n".format(-x, y-1, z, -x + ART_SIZE, y-1, z + ART_SIZE))
         for i in range(0, len(output)):
             if type(output[i]) == dict:
                 if mode == 1:

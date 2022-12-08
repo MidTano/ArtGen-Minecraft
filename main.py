@@ -21,14 +21,11 @@ def get_pixel_rgb(pixel):
 
 
 def get_pixel_id(pixel_rgb, blocks):
-    temp = False
-    for key in blocks:
-        item = blocks[key]
-        dev = abs(pixel_rgb["red"] - item[0]) + abs(pixel_rgb["green"] - item[1]) + abs(
-            pixel_rgb["blue"] - item[2])
-        if not temp or dev < temp["dev"]:
-            temp = {"id": key, "dev": dev}
-
+    temp = None
+    for key, item in blocks.items():
+        dev = abs(pixel_rgb["red"] - item[0]) + abs(pixel_rgb["green"] - item[1]) + abs(pixel_rgb["blue"] - item[2])
+    if temp is None or dev < temp["dev"]:
+        temp = {"id": key, "dev": dev}
     return temp['id']
 
 
@@ -70,20 +67,21 @@ def main(image, ART_SIZE):
     return output
 
 
-def save_output(mode,image,output, x, y, z):
+def save_output(mode, image, output, x, y, z):
     if mode == 3:
-        with open("RAW_"+image+'.txt', 'w') as f:
+        with open("RAW_" + image + '.txt', 'w') as f:
             for i in range(0, len(output)):
                 if type(output[i]) == dict:
-                    f.write("/setblock ~{} ~{} ~{} {} {} replace".format(i % ART_SIZE, z,i // ART_SIZE, output[i]['game_id'],
-                                                                     output[i]['data_id'])+"\n")
+                    f.write("/setblock ~{} ~{} ~{} {} {} replace".format(i % ART_SIZE, z, i // ART_SIZE,
+                                                                         output[i]['game_id'],
+                                                                         output[i]['data_id']) + "\n")
                 else:
-                    f.write("/setblock ~{} ~{} ~{} {}".format(i % ART_SIZE, z,i // ART_SIZE, output[i])+"\n")
+                    f.write("/setblock ~{} ~{} ~{} {}".format(i % ART_SIZE, z, i // ART_SIZE, output[i]) + "\n")
         return True
 
     with open(image + ".txt", 'w') as f:
         if mode == 2:
-            f.write("mc.setBlocks({},{},{},{},{},{},20)\n".format(-x, y-1, z, -x + ART_SIZE, y-1, z + ART_SIZE))
+            f.write("mc.setBlocks({},{},{},{},{},{},20)\n".format(-x, y - 1, z, -x + ART_SIZE, y - 1, z + ART_SIZE))
         for i in range(0, len(output)):
             if type(output[i]) == dict:
                 if mode == 1:
@@ -111,26 +109,29 @@ def save_output(mode,image,output, x, y, z):
                     return False
 
 
-
-if __name__ == '__main__':
+def get_format_file():
     format_file = input("Select, convert image to:\n[1] - ProgKids\n[2] - ProgMine\n[3] - Raw data\n")
-
     if format_file == "1":
-        x,y,z=63,0,63
+        x, y, z = 63, 0, 63
         ART_SIZE = 126
         mode = 1
     elif format_file == "2":
-        x,y,z=129,120,134
+        x, y, z = 129, 120, 134
         ART_SIZE = 126
         mode = 2
     elif format_file == "3":
-        x,y,z=0,0,0
+        x, y, z = 0, 0, 0
         ART_SIZE = 200
         mode = 3
     else:
         print("Error")
         exit()
+    return x, y, z, ART_SIZE, mode
 
+
+if __name__ == '__main__':
+
+    x, y, z, ART_SIZE, mode = get_format_file()
 
     image_list = []
     for file in glob.glob("*.png"):
@@ -143,14 +144,14 @@ if __name__ == '__main__':
         for i in range(0, len(image_list)):
             print("Loading: " + str(i + 1) + "/" + str(len(image_list)))
             output = main(image_list[i], ART_SIZE)
-            save_output(mode,image,output, x, y, z)
+            save_output(mode, image, output, x, y, z)
     elif image == "2":
         for i in range(0, len(image_list)):
             print(f"[{str(i + 1)}] - {image_list[i]}")
         image = input("Enter the image to convert\n")
         image = image_list[int(image) - 1]
         output = main(image, ART_SIZE)
-        save_output(mode,image,output, x, y, z)
+        save_output(mode, image, output, x, y, z)
     else:
         print("Error")
         exit()
